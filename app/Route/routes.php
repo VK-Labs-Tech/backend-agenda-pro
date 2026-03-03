@@ -83,14 +83,14 @@ return function (App $app) {
         return $response;
     });
 
-    $app->group('/users', function (Group $group) {
+    $app->group('api/users', function (Group $group) {
         $group->get('', ListUsersAction::class);
         $group->get('/{id}', ViewUserAction::class);
     })
         ->add(new RoleMiddleware($container->get(UserRepository::class), ['ADMIN']))
         ->add(AuthMiddleware::class);
 
-    $app->group('/auth', function (Group $group) {
+    $app->group('api/auth', function (Group $group) {
         $group->post('/register', RegisterAction::class);
         $group->post('/verify-email', VerifyEmailCodeAction::class);
         $group->post('/login', LoginUserAction::class);
