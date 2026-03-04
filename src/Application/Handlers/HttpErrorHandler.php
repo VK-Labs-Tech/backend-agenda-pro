@@ -72,7 +72,7 @@ class HttpErrorHandler extends SlimErrorHandler
                 $error->setDescription($exception->getMessage());
             }
 
-            $payload = new ActionPayload($statusCode, $requestId !== '' ? ['request_id' => $requestId] : null, $error);
+            $payload = new ActionPayload($statusCode, null, $error);
         }
         $encodedPayload = json_encode($payload, JSON_PRETTY_PRINT);
 
