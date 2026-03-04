@@ -78,14 +78,14 @@ return function (App $app) {
         return $response;
     });
 
-    $app->group('/api/users', function (Group $group) {
+    $app->group('/users', function (Group $group) {
         $group->get('', ListUsersAction::class);
         $group->get('/{id}', ViewUserAction::class);
     })
         ->add(new RoleMiddleware($container->get(UserRepository::class), ['ADMIN']))
         ->add(AuthMiddleware::class);
 
-    $app->group('/api/auth', function (Group $group) {
+    $app->group('/auth', function (Group $group) {
         $group->post('/register', RegisterAction::class);
         $group->post('/verify-email', VerifyEmailCodeAction::class);
         $group->post('/login', LoginUserAction::class);
@@ -93,7 +93,7 @@ return function (App $app) {
         $group->post('/logout', LogoutUserAction::class)->add(AuthMiddleware::class);
     });
 
-    $app->group('/api/companies', function (Group $group) {
+    $app->group('/companies', function (Group $group) {
         $group->get('', CompanyListAction::class);
         $group->post('', CompanyRegisterAction::class);
         $group->get('/{id}', CompanyListByIdAction::class);
@@ -103,7 +103,7 @@ return function (App $app) {
         $group->get('/user/{userId}', CompanyListUserIdAction::class);
     })->add(AuthMiddleware::class);
 
-    $app->group('/api/products', function (Group $group) {
+    $app->group('/products', function (Group $group) {
         $group->get('', ProductListAction::class);
         $group->post('', ProductRegisterAction::class);
         $group->get('/{id}', ProductListByIdAction::class);
@@ -111,7 +111,7 @@ return function (App $app) {
         $group->delete('/{id}', ProductDeleteAction::class);
     })->add(AuthMiddleware::class);
 
-    $app->group('/api/services', function (Group $group) {
+    $app->group('/services', function (Group $group) {
         $group->get('/company/{companyId}', ServiceListAction::class);
         $group->post('', ServiceRegisterAction::class);
         $group->get('/{id}', ServiceListByIdaction::class);
@@ -119,13 +119,13 @@ return function (App $app) {
         $group->delete('/{id}', ServiceDeleteAction::class);
     })->add(AuthMiddleware::class);
 
-    $app->group('/api/clients', function (Group $group) {
+    $app->group('/clients', function (Group $group) {
         $group->post('', ClientRegisterAction::class);
         $group->get('', ClientListAction::class);
         $group->put('/{id}', ClientUpdateAction::class);
     })->add(AuthMiddleware::class);
 
-    $app->group('/api/profissionals', function (Group $group) use ($container) {
+    $app->group('/profissionals', function (Group $group) use ($container) {
         $group->get('', ProfissionalListAction::class);
         $group->post('', ProfissionalRegisterAction::class)->add(ProfessionalLimitMiddleware::class);
         $group->get('/{id}', ProfissionalListByIdAction::class);
@@ -137,13 +137,13 @@ return function (App $app) {
             ->add(new RoleMiddleware($container->get(UserRepository::class), ['ADMIN']));
     })->add(AuthMiddleware::class);
 
-    $app->group('/api/permissions', function (Group $group) {
+    $app->group('/permissions', function (Group $group) {
         $group->get('', PermissionListAction::class);
     })
         ->add(new RoleMiddleware($container->get(UserRepository::class), ['ADMIN']))
         ->add(AuthMiddleware::class);
 
-    $app->group('/api/appointment', function (Group $group) {
+    $app->group('/appointment', function (Group $group) {
         $group->get('', AgendamentoListAction::class);
         $group->post('', AgendamentoRegisterAction::class)->add(PlanLimitMiddleware::class);
         $group->get('/{id}', AgendamentoListByIdAction::class);
@@ -151,38 +151,38 @@ return function (App $app) {
         $group->delete('/{id}', AgendamentoDeleteAction::class);
     })->add(AuthMiddleware::class);
 
-    $app->group('/api/settings', function (Group $group) {
+    $app->group('/settings', function (Group $group) {
         $group->get('', SettingsGetAction::class);
         $group->put('', SettingsUpdateAction::class);
     })->add(AuthMiddleware::class);
 
-    $app->group('/api/dashboard', function (Group $group) {
+    $app->group('/dashboard', function (Group $group) {
         $group->get('/metrics', DashboardMetricsAction::class);
     })->add(AuthMiddleware::class);
 
-    $app->group('/api/stockMovements', function (Group $group) {
+    $app->group('/stockMovements', function (Group $group) {
         $group->get('/company/{companyId}', StockMovementListByCompanyAction::class);
         $group->get('/stock/{stockId}', StockMovementListByStockAction::class);
         $group->post('', StockMovementRegisterAction::class);
         $group->delete('/{id}', StockMovementDeleteAction::class);
     })->add(AuthMiddleware::class);
 
-    $app->group('/api/appointment-requests', function (Group $group) {
+    $app->group('/appointment-requests', function (Group $group) {
         $group->post('/public', AppointmentRequestPublicCreateAction::class);
         $group->get('/public/availability', AppointmentRequestPublicAvailabilityAction::class);
     });
 
-    $app->group('/api/appointment-requests', function (Group $group) {
+    $app->group('/appointment-requests', function (Group $group) {
         $group->get('', AppointmentRequestListAction::class);
         $group->post('/{id}/approve', AppointmentRequestApproveAction::class);
         $group->post('/{id}/reject', AppointmentRequestRejectAction::class);
     })->add(AuthMiddleware::class);
 
-    $app->group('/api/notifications', function (Group $group) {
+    $app->group('/notifications', function (Group $group) {
         $group->get('', NotificationListAction::class);
     })->add(AuthMiddleware::class);
 
-    $app->group('/api/billing', function (Group $group) {
+    $app->group('/billing', function (Group $group) {
         $group->post('/checkout', CreateCheckoutSessionAction::class);
         $group->get('/status', CompanyPlanStatusAction::class);
         $group->get('/usage', BillingUsageAction::class);
@@ -190,12 +190,11 @@ return function (App $app) {
         $group->get('/invoices/{id}/download', \App\Application\Actions\Billing\InvoiceDownloadAction::class);
     })->add(AuthMiddleware::class);
 
-    $app->group('/api/billing', function (Group $group) {
+    $app->group('/billing', function (Group $group) {
         $group->post('/webhook', StripeWebhookAction::class);
     });
 
-
-    $app->group('/api/public', function (Group $group) {
+    $app->group('/public', function (Group $group) {
         $group->get('/companies/{id}', PublicCompanyInfoAction::class);
         $group->get('/companies', PublicCompanyListAction::class);
     });
