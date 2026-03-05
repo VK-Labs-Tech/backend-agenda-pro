@@ -38,7 +38,7 @@ final class StripeWebhookAction extends Action
 
         if ($type === 'checkout.session.completed') {
             $session = $event->data->object;
-            $companyId = (int) ($session->metadata->company_id ?? 0);
+            $companyId = (int) ($session->metadata->company_id ?? $session->client_reference_id ?? 0);
             $plan = (string) ($session->metadata->plan ?? '');
             $subscriptionId = (string) ($session->subscription ?? '');
             $customerId = (string) ($session->customer ?? '');
@@ -48,7 +48,7 @@ final class StripeWebhookAction extends Action
             }
         }
 
-        if ($type === 'customer.subscription.updated' || $type === 'customer.subscription.deleted') {
+        if ($type === 'customer.subscription.created' || $type === 'customer.subscription.updated' || $type === 'customer.subscription.deleted') {
             $subscription = $event->data->object;
             $companyId = (int) ($subscription->metadata->company_id ?? 0);
             $plan = (string) ($subscription->metadata->plan ?? '');
@@ -89,23 +89,47 @@ final class StripeWebhookAction extends Action
 
         $secret = (string) ($_ENV['STRIPE_SECRET_KEY'] ?? '');
         if ($secret === '') {
+            $this->companyPlans->upsert($companyId, [
+                'plan_code' => $plan,
+                'status' => 'pending',
+                'stripe_customer_id' => $customerId ?: null,
+                'stripe_subscription_id' => $subscriptionId,
+                'current_period_end' => null,
+            ]);
             return;
         }
 
-        $stripe = new StripeClient($secret);
-        $subscription = $stripe->subscriptions->retrieve($subscriptionId, []);
+        try {
+            $stripe = new StripeClient($secret);
+            $subscription = $stripe->subscriptions->retrieve($subscriptionId, []);
 
-        $status = (string) ($subscription->status ?? '');
-        $periodEnd = isset($subscription->current_period_end)
-            ? (new \DateTimeImmutable())->setTimestamp((int) $subscription->current_period_end)
-            : null;
+            $status = (string) ($subscription->status ?? '');
+            $periodEnd = isset($subscription->current_period_end)
+                ? (new \DateTimeImmutable())->setTimestamp((int) $subscription->current_period_end)
+                : null;
 
-        $this->companyPlans->upsert($companyId, [
-            'plan_code' => $plan,
-            'status' => $status,
-            'stripe_customer_id' => $customerId ?: null,
-            'stripe_subscription_id' => $subscriptionId,
-            'current_period_end' => $periodEnd?->format('Y-m-d H:i:s'),
-        ]);
+            $this->companyPlans->upsert($companyId, [
+                'plan_code' => $plan,
+                'status' => $status,
+                'stripe_customer_id' => $customerId ?: null,
+                'stripe_subscription_id' => $subscriptionId,
+                'current_period_end' => $periodEnd?->format('Y-m-d H:i:s'),
+            ]);
+        } catch (\Throwable $e) {
+            $this->logger->error('Stripe subscription retrieve error', [
+                'message' => $e->getMessage(),
+                'company_id' => $companyId,
+                'plan' => $plan,
+                'subscription_id' => $subscriptionId,
+            ]);
+
+            $this->companyPlans->upsert($companyId, [
+                'plan_code' => $plan,
+                'status' => 'pending',
+                'stripe_customer_id' => $customerId ?: null,
+                'stripe_subscription_id' => $subscriptionId,
+                'current_period_end' => null,
+            ]);
+        }
     }
 }
