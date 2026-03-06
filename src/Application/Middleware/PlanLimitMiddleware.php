@@ -42,8 +42,9 @@ final class PlanLimitMiddleware implements Middleware
         $plan = $this->plans->findByCompanyId((int) $companyId);
         $planCode = strtolower(trim((string) ($plan['plan_code'] ?? '')));
         $planStatus = strtolower(trim((string) ($plan['status'] ?? '')));
+        $hasPlan = $planCode !== '';
 
-        if ($planStatus !== 'active' && $planStatus !== 'trialing') {
+        if (!$hasPlan && $planStatus !== 'active' && $planStatus !== 'trialing') {
             return $this->jsonError('Plano inativo', 403);
         }
 
