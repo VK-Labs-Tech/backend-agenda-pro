@@ -74,7 +74,6 @@ return function (ContainerBuilder $containerBuilder) {
                 return new \App\Infrastructure\Whatsapp\NullWhatsappNotifier();
             }
 
-            $provider = trim((string) ($_ENV['WHATSAPP_PROVIDER'] ?? 'unofficial_api'));
             $extraPayloadRaw = trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_EXTRA_PAYLOAD_JSON'] ?? ''));
             $extraPayload = [];
 
@@ -86,9 +85,7 @@ return function (ContainerBuilder $containerBuilder) {
             }
 
             return new \App\Infrastructure\Whatsapp\HttpWhatsappNotifier(
-                logger: $c->get(LoggerInterface::class),
-                enabled: $enabled,
-                provider: $provider,
+
                 endpoint: trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_ENDPOINT'] ?? '')),
                 phoneField: trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_PHONE_FIELD'] ?? 'number')),
                 messageField: trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_MESSAGE_FIELD'] ?? 'text')),

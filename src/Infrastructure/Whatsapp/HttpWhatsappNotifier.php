@@ -5,14 +5,10 @@ declare(strict_types=1);
 namespace App\Infrastructure\Whatsapp;
 
 use App\Domain\Shared\Interfaces\WhatsappNotifierInterface;
-use Psr\Log\LoggerInterface;
 
 final class HttpWhatsappNotifier implements WhatsappNotifierInterface
 {
     public function __construct(
-        private readonly LoggerInterface $logger,
-        private readonly bool $enabled,
-        private readonly string $provider,
         private readonly string $endpoint,
         private readonly string $phoneField,
         private readonly string $messageField,
@@ -26,34 +22,11 @@ final class HttpWhatsappNotifier implements WhatsappNotifierInterface
 
     public function sendText(string $phone, string $message, array $metadata = []): bool
     {
-        if (!$this->enabled) {
-            $this->logger->warning('whatsapp_notifier_disabled', [
-                'provider' => $this->provider,
-                'endpoint' => $this->endpoint,
-            ]);
-            return false;
-        }
 
         $normalizedPhone = $this->normalizePhone($phone);
         $trimmedMessage = trim($message);
 
         if ($normalizedPhone === '' || $trimmedMessage === '') {
-            $this->logger->warning('whatsapp_invalid_payload', [
-                'has_phone' => $normalizedPhone !== '',
-                'has_message' => $trimmedMessage !== '',
-            ]);
-            return false;
-        }
-
-        $provider = strtolower(trim($this->provider));
-        if (!in_array($provider, ['unofficial_api', 'generic_http', 'infobip', 'meta'], true)) {
-            $this->logger->warning('whatsapp_provider_not_supported', [
-                'provider' => $this->provider,
-            ]);
-        }
-
-        if ($this->endpoint === '') {
-            $this->logger->warning('whatsapp_endpoint_not_configured');
             return false;
         }
 
@@ -92,18 +65,8 @@ final class HttpWhatsappNotifier implements WhatsappNotifierInterface
                 return true;
             }
 
-            $this->logger->warning('whatsapp_http_send_failed', [
-                'status' => $httpCode,
-                'response' => is_string($responseBody) ? $responseBody : null,
-                'endpoint' => $endpoint,
-                'provider' => $this->provider,
-            ]);
             return false;
         } catch (\Throwable $exception) {
-            $this->logger->error('whatsapp_http_send_exception', [
-                'message' => $exception->getMessage(),
-                'endpoint' => $endpoint,
-            ]);
             return false;
         }
     }
@@ -149,10 +112,6 @@ final class HttpWhatsappNotifier implements WhatsappNotifierInterface
         return $trimmed;
     }
 
-    /**
-     * @param list<string> $headers
-     * @return array{status:int,response:?string}
-     */
     private function sendViaStreams(string $endpoint, array $headers, string $jsonPayload): array
     {
         $context = stream_context_create([
@@ -180,10 +139,6 @@ final class HttpWhatsappNotifier implements WhatsappNotifierInterface
         ];
     }
 
-    /**
-     * @param list<string> $headers
-     * @return array{status:int,response:?string}
-     */
     private function sendViaCurl(string $endpoint, array $headers, string $jsonPayload): array
     {
         $ch = curl_init($endpoint);

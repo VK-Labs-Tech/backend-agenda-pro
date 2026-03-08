@@ -6,7 +6,7 @@ namespace App\Domain\Agendamentos\Services;
 
 use App\Domain\Agendamentos\Data\DTOs\Request\AgendamentoRequest;
 use App\Domain\Agendamentos\Repositories\AppointmentRequestRepository;
-use App\Domain\Shared\Interfaces\WhatsappNotifierInterface;
+use App\Infrastructure\Whatsapp\HttpWhatsappNotifier;
 use Psr\Log\LoggerInterface;
 
 final class AppointmentRequestService
@@ -14,7 +14,7 @@ final class AppointmentRequestService
     public function __construct(
         private readonly AppointmentRequestRepository $repository,
         private readonly AgendamentoService $agendamentoService,
-        private readonly WhatsappNotifierInterface $whatsapp,
+        private readonly HttpWhatsappNotifier $whatsapp,
         private readonly LoggerInterface $logger
     ) {}
 
@@ -91,23 +91,9 @@ final class AppointmentRequestService
         );
 
         try {
-            $this->logger->info('whatsapp_notification_attempt', [
-                'phone' => $phone,
-                'request_id' => (int) ($request['id'] ?? 0),
-                'company_id' => (int) ($request['company_id'] ?? 0),
-                'appointment_id' => (int) ($appointment['id'] ?? 0),
-            ]);
 
             $sent = $this->whatsapp->sendText($phone, $message, [
                 'companyId' => (int) ($request['company_id'] ?? 0),
-            ]);
-
-            $this->logger->info('whatsapp_notification_result', [
-                'sent' => $sent,
-                'phone' => $phone,
-                'request_id' => (int) ($request['id'] ?? 0),
-                'company_id' => (int) ($request['company_id'] ?? 0),
-                'appointment_id' => (int) ($appointment['id'] ?? 0),
             ]);
 
             if (!$sent) {
