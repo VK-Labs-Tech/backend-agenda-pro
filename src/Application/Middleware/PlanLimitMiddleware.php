@@ -44,8 +44,18 @@ final class PlanLimitMiddleware implements Middleware
         $planStatus = strtolower(trim((string) ($plan['status'] ?? '')));
         $hasPlan = $planCode !== '';
 
+        // Bloqueia se não tiver plano ativo ou trial
         if (!$hasPlan && $planStatus !== 'active' && $planStatus !== 'trialing') {
             return $this->jsonError('Plano inativo', 403);
+        }
+
+        // Se for trial, verifica se expirou
+        if ($planCode === 'trial' && $planStatus === 'trialing') {
+            $now = new \DateTimeImmutable();
+            $trialEnd = isset($plan['current_period_end']) ? new \DateTimeImmutable($plan['current_period_end']) : null;
+            if ($trialEnd && $now > $trialEnd) {
+                return $this->jsonError('Seu período de avaliação expirou. Contrate um plano para continuar usando.', 403);
+            }
         }
 
         $limit = self::LIMITS[$planCode] ?? 0;
