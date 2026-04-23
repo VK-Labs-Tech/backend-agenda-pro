@@ -20,7 +20,11 @@ use App\Domain\Dashboard\Repositories\DashboardRepository;
 use App\Domain\StockMovements\Repositories\StockMovementRepository;
 use App\Domain\Cases\Repositories\CaseRepository;
 use App\Domain\CompanyPlan\Repositories\CompanyPlanRepository;
+use App\Domain\ServicesPackage\Repositories\ServicePackageRepository;
 use DI\ContainerBuilder;
+use Domain\ServicePackage\Repositories\ServicePackageRepository as RepositoriesServicePackageRepository;
+use Domain\ServicePackage\Repositories\ServicePackageSessionRepository;
+
 use function DI\autowire;
 use function DI\get;
 
@@ -48,6 +52,12 @@ return function (ContainerBuilder $containerBuilder) {
             ->constructorParameter('connection', get('db.agendapro')),
 
         ServiceRepository::class => autowire()
+            ->constructorParameter('connection', get('db.agendapro')),
+
+        RepositoriesServicePackageRepository::class => autowire()
+            ->constructorParameter('connection', get('db.agendapro')),
+
+        ServicePackageSessionRepository::class => autowire()
             ->constructorParameter('connection', get('db.agendapro')),
 
         AgendamentoRepository::class => autowire()
