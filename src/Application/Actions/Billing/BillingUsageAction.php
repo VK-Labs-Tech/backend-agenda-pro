@@ -15,6 +15,7 @@ use Psr\Log\LoggerInterface;
 final class BillingUsageAction extends Action
 {
     private const LIMITS = [
+        'trial' => 200,
         'basic' => 200,
         'medium' => 800,
         'advanced' => 2000,
@@ -40,8 +41,8 @@ final class BillingUsageAction extends Action
         }
 
         $plan = $this->plans->findByCompanyId((int) $companyId);
-        $planCode = strtolower(trim((string) ($plan['plan_code'] ?? 'basic')));
-        $limit = self::LIMITS[$planCode] ?? 200;
+        $planCode = strtolower(trim((string) ($plan['plan_code'] ?? 'trial')));
+        $limit = self::LIMITS[$planCode] ?? self::LIMITS['trial'];
 
         $now = new \DateTimeImmutable();
         $startOfMonth = $now->modify('first day of this month')->format('Y-m-d 00:00:00');
@@ -67,6 +68,7 @@ final class BillingUsageAction extends Action
     private function planProfessionalLimit(string $planCode): int
     {
         return match ($planCode) {
+            'trial' => 2,
             'basic' => 2,
             'medium' => 10,
             'advanced' => PHP_INT_MAX,
