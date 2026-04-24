@@ -47,9 +47,17 @@ final class RegisterUserService
         $user->deactivate();
         $this->users->save(user: $user, verificationCode: $verificationCode);
 
+        // O repositório atual não hidrata o ID na entidade ao salvar.
+        // Recarregamos pelo email para garantir o vínculo correto user -> company.
+        $persistedUser = $this->users->findByEmail($request->email());
+        $userId = (int) ($persistedUser?->id() ?? 0);
+        if ($userId <= 0) {
+            throw new \RuntimeException('Falha ao recuperar usuário recém-criado.');
+        }
+
         // Criação da empresa vinculada ao usuário
         $company = CompanyEntity::create(
-            userId: $user->id() ?? 0,
+            userId: $userId,
             name: $request->name(),
             cnpj: $request->cnpjcpf(),
             address: '',
