@@ -16,6 +16,7 @@ use Slim\Psr7\Response as SlimResponse;
 final class ProfessionalLimitMiddleware implements Middleware
 {
     private const LIMITS = [
+        'trial' => 2,
         'basic' => 2,
         'medium' => 10,
         'advanced' => PHP_INT_MAX, // ilimitado
@@ -44,8 +45,16 @@ final class ProfessionalLimitMiddleware implements Middleware
         $planStatus = strtolower(trim((string) ($plan['status'] ?? '')));
         $hasPlan = $planCode !== '';
 
-        if (!$hasPlan && $planStatus !== 'active' && $planStatus !== 'trialing') {
+        if (!$hasPlan || ($planStatus !== 'active' && $planStatus !== 'trialing')) {
             return $this->jsonError('Plano inativo', 403);
+        }
+
+        if ($planCode === 'trial' && $planStatus === 'trialing') {
+            $now = new \DateTimeImmutable();
+            $trialEnd = isset($plan['current_period_end']) ? new \DateTimeImmutable($plan['current_period_end']) : null;
+            if ($trialEnd && $now > $trialEnd) {
+                return $this->jsonError('Seu período de avaliação expirou. Contrate um plano para continuar usando.', 403);
+            }
         }
 
         $limit = self::LIMITS[$planCode] ?? 0;

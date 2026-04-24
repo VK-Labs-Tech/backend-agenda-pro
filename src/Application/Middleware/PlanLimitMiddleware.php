@@ -16,6 +16,7 @@ use Slim\Psr7\Response as SlimResponse;
 final class PlanLimitMiddleware implements Middleware
 {
     private const LIMITS = [
+        'trial' => 200,
         'basic' => 200,
         'medium' => 800,
         'advanced' => 2000,
@@ -44,8 +45,8 @@ final class PlanLimitMiddleware implements Middleware
         $planStatus = strtolower(trim((string) ($plan['status'] ?? '')));
         $hasPlan = $planCode !== '';
 
-        // Bloqueia se não tiver plano ativo ou trial
-        if (!$hasPlan && $planStatus !== 'active' && $planStatus !== 'trialing') {
+        // Bloqueia se não tiver plano ou se o status não estiver ativo/trialing
+        if (!$hasPlan || ($planStatus !== 'active' && $planStatus !== 'trialing')) {
             return $this->jsonError('Plano inativo', 403);
         }
 
