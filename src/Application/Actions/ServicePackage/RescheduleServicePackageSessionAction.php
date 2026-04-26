@@ -19,7 +19,7 @@ class RescheduleServicePackageSessionAction
     {
         $sessionId = (int)$args['session_id'];
         $data = $request->getParsedBody();
-        $newDate = $data['data'] ?? null;
+        $newDate = $data['data'] ?? ($data['date'] ?? null);
         if (!$newDate) {
             $response->getBody()->write(json_encode(['error' => 'Nova data não informada']));
             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
