@@ -1,6 +1,6 @@
 <?php
 
-namespace Domain\ServicePackage\Entities;
+namespace App\Domain\ServicePackage\Entities;
 
 class ServicePackageEntity
 {

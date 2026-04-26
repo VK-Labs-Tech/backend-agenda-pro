@@ -20,10 +20,13 @@ use App\Domain\Dashboard\Repositories\DashboardRepository;
 use App\Domain\StockMovements\Repositories\StockMovementRepository;
 use App\Domain\Cases\Repositories\CaseRepository;
 use App\Domain\CompanyPlan\Repositories\CompanyPlanRepository;
-use App\Domain\ServicesPackage\Repositories\ServicePackageRepository;
+use App\Domain\ServicePackage\Interfaces\ServicePackageRepositoryInterface;
+use App\Domain\ServicePackage\Repositories\ServicePackageRepository;
+use App\Domain\ServicePackage\Repositories\ServicePackageSessionRepository;
+use App\Domain\ServicePackage\Repositories\ServicePackageSessionRepositoryInterface;
+use App\Domain\ServicePackage\Services\ServicePackageService;
+use App\Domain\ServicePackage\Services\ServicePackageServiceInterface;
 use DI\ContainerBuilder;
-use Domain\ServicePackage\Repositories\ServicePackageRepository as RepositoriesServicePackageRepository;
-use Domain\ServicePackage\Repositories\ServicePackageSessionRepository;
 
 use function DI\autowire;
 use function DI\get;
@@ -54,11 +57,15 @@ return function (ContainerBuilder $containerBuilder) {
         ServiceRepository::class => autowire()
             ->constructorParameter('connection', get('db.agendapro')),
 
-        RepositoriesServicePackageRepository::class => autowire()
+        ServicePackageRepository::class => autowire()
             ->constructorParameter('connection', get('db.agendapro')),
 
         ServicePackageSessionRepository::class => autowire()
             ->constructorParameter('connection', get('db.agendapro')),
+
+        ServicePackageRepositoryInterface::class => get(ServicePackageRepository::class),
+        ServicePackageSessionRepositoryInterface::class => get(ServicePackageSessionRepository::class),
+        ServicePackageServiceInterface::class => get(ServicePackageService::class),
 
         AgendamentoRepository::class => autowire()
             ->constructorParameter('connection', get('db.agendapro')),

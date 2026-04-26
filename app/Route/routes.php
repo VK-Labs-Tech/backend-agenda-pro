@@ -66,7 +66,8 @@ use App\Application\Actions\Billing\CreateCheckoutSessionAction;
 use App\Application\Actions\Billing\StripeWebhookAction;
 use App\Application\Actions\Billing\CompanyPlanStatusAction;
 use App\Application\Actions\Billing\BillingUsageAction;
-use Application\Actions\ServicePackage\CreateServicePackageAction;
+use App\Application\Actions\ServicePackage\CreateServicePackageAction;
+use App\Application\Actions\ServicePackage\DeleteServicePackageAction;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
@@ -202,10 +203,11 @@ return function (App $app) {
 
     $app->group('/service-packages', function (Group $group) {
         $group->post('', CreateServicePackageAction::class);
-        $group->get('/client/{client_id}', \Application\Actions\ServicePackage\ListServicePackagesByClientAction::class);
-        $group->get('/company/{company_id}', \Application\Actions\ServicePackage\ListServicePackagesByCompanyAction::class);
-        $group->get('/{package_id}', \Application\Actions\ServicePackage\GetServicePackageWithSessionsAction::class);
-        $group->patch('/{package_id}/session/{session_id}/cancel', \Application\Actions\ServicePackage\CancelServicePackageSessionAction::class);
-        $group->patch('/{package_id}/session/{session_id}/reschedule', \Application\Actions\ServicePackage\RescheduleServicePackageSessionAction::class);
+        $group->get('/client/{client_id}', \App\Application\Actions\ServicePackage\ListServicePackagesByClientAction::class);
+        $group->get('/company/{company_id}', \App\Application\Actions\ServicePackage\ListServicePackagesByCompanyAction::class);
+        $group->get('/{package_id}', \App\Application\Actions\ServicePackage\GetServicePackageWithSessionsAction::class);
+        $group->delete('/{package_id}', DeleteServicePackageAction::class);
+        $group->patch('/{package_id}/session/{session_id}/cancel', \App\Application\Actions\ServicePackage\CancelServicePackageSessionAction::class);
+        $group->patch('/{package_id}/session/{session_id}/reschedule', \App\Application\Actions\ServicePackage\RescheduleServicePackageSessionAction::class);
     })->add(AuthMiddleware::class);
 };
