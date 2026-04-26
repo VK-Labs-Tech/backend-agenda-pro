@@ -1,8 +1,8 @@
 <?php
 
-namespace Domain\ServicePackage\Repositories;
+namespace App\Domain\ServicePackage\Repositories;
 
-use Domain\ServicePackage\Entities\ServicePackageSessionEntity;
+use App\Domain\ServicePackage\Entities\ServicePackageSessionEntity;
 use Illuminate\Database\Connection;
 
 class ServicePackageSessionRepository implements ServicePackageSessionRepositoryInterface

@@ -1,8 +1,8 @@
 <?php
 
-namespace Domain\ServicePackage\Repositories;
+namespace App\Domain\ServicePackage\Interfaces;
 
-use Domain\ServicePackage\Entities\ServicePackageEntity;
+use App\Domain\ServicePackage\Entities\ServicePackageEntity;
 
 interface ServicePackageRepositoryInterface
 {

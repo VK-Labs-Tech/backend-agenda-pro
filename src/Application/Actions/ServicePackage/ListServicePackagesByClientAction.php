@@ -1,10 +1,10 @@
 <?php
 
-namespace Application\Actions\ServicePackage;
+namespace App\Application\Actions\ServicePackage;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use Domain\ServicePackage\Services\ServicePackageServiceInterface;
+use App\Domain\ServicePackage\Services\ServicePackageServiceInterface;
 
 class ListServicePackagesByClientAction
 {

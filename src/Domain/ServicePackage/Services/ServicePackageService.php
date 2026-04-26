@@ -1,10 +1,10 @@
 <?php
 
-namespace Domain\ServicePackage\Services;
+namespace App\Domain\ServicePackage\Services;
 
-use Domain\ServicePackage\Entities\ServicePackageEntity;
-use Domain\ServicePackage\Repositories\ServicePackageRepositoryInterface;
-use Domain\ServicePackage\Repositories\ServicePackageSessionRepositoryInterface;
+use App\Domain\ServicePackage\Entities\ServicePackageEntity;
+use App\Domain\ServicePackage\Interfaces\ServicePackageRepositoryInterface;
+use App\Domain\ServicePackage\Repositories\ServicePackageSessionRepositoryInterface;
 
 class ServicePackageService implements ServicePackageServiceInterface
 {
@@ -44,6 +44,11 @@ class ServicePackageService implements ServicePackageServiceInterface
     public function listPackagesByClient(int $clientId): array
     {
         return $this->packageRepo->findByClientId($clientId);
+    }
+
+    public function deletePackage(int $packageId): bool
+    {
+        return $this->packageRepo->delete($packageId);
     }
 
     public function cancelSession(int $sessionId): bool
