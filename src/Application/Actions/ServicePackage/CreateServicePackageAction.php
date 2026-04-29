@@ -80,6 +80,8 @@ class CreateServicePackageAction
                 companyId: (int) $package->company_id,
                 professionalId: $professionalId,
                 clientId: (int) $package->client_id,
+                clientFirstName: null,
+                clientLastName: null,
                 serviceId: (int) $package->service_id,
                 startAt: $startAt,
                 endAt: $endAt,
