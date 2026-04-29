@@ -38,6 +38,8 @@ final class AgendamentoListAction extends Action
             'companyId' => (int) ($row['company_id'] ?? 0),
             'professionalId' => (int) ($row['professional_id'] ?? 0),
             'clientId' => (int) ($row['client_id'] ?? 0),
+            'clientFirstName' => $row['client_first_name'] ?? null,
+            'clientLastName' => $row['client_last_name'] ?? null,
             'serviceId' => (int) ($row['service_id'] ?? 0),
             'startAt' => $startAt,
             'endAt' => $endAt,

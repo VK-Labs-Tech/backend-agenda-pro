@@ -3,16 +3,22 @@
 namespace App\Application\Actions\Agendamentos\Register;
 
 use App\Application\Actions\Action;
+use App\Application\Actions\Agendamentos\AppointmentRequestEnricher;
 use App\Domain\Agendamentos\Data\DTOs\Request\AgendamentoRequest;
 use App\Domain\Agendamentos\Services\AgendamentoService;
 
 final class AgendamentoRegisterAction extends Action
 {
-    public function __construct(private readonly AgendamentoService $service){}
+    public function __construct(
+        private readonly AgendamentoService $service,
+        private readonly AppointmentRequestEnricher $enricher,
+    ) {
+    }
 
     public function action(): \Psr\Http\Message\ResponseInterface
     {
         $data = (array) $this->request->getParsedBody();
+        $data = $this->enricher->enrichParsedBody($data);
         $request = AgendamentoRequest::fromArray($data);
         $created = $this->service->register($request);
         $payload = $this->mapToResponse($created);
@@ -31,6 +37,8 @@ final class AgendamentoRegisterAction extends Action
             'companyId' => (int) ($row['company_id'] ?? 0),
             'professionalId' => (int) ($row['professional_id'] ?? 0),
             'clientId' => (int) ($row['client_id'] ?? 0),
+            'clientFirstName' => $row['client_first_name'] ?? null,
+            'clientLastName' => $row['client_last_name'] ?? null,
             'serviceId' => (int) ($row['service_id'] ?? 0),
             'startAt' => $startAt,
             'endAt' => $endAt,

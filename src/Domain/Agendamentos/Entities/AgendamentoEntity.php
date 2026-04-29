@@ -9,6 +9,8 @@ final class AgendamentoEntity
         private int $companyId,
         private int $professionalId,
         private int $clientId,
+        private ?string $clientFirstName,
+        private ?string $clientLastName,
         private int $serviceId,
         private \DateTimeImmutable $startAt,
         private \DateTimeImmutable $endAt,
@@ -21,6 +23,8 @@ final class AgendamentoEntity
         int $companyId,
         int $professionalId,
         int $clientId,
+        ?string $clientFirstName,
+        ?string $clientLastName,
         int $serviceId,
         \DateTimeImmutable $startAt,
         \DateTimeImmutable $endAt,
@@ -33,6 +37,8 @@ final class AgendamentoEntity
             companyId: $companyId,
             professionalId: $professionalId,
             clientId: $clientId,
+            clientFirstName: $clientFirstName,
+            clientLastName: $clientLastName,
             serviceId: $serviceId,
             startAt: $startAt,
             endAt: $endAt,
@@ -47,6 +53,8 @@ final class AgendamentoEntity
         int $companyId,
         int $professionalId,
         int $clientId,
+        ?string $clientFirstName,
+        ?string $clientLastName,
         int $serviceId,
         \DateTimeImmutable $startAt,
         \DateTimeImmutable $endAt,
@@ -59,6 +67,8 @@ final class AgendamentoEntity
             companyId: $companyId,
             professionalId: $professionalId,
             clientId: $clientId,
+            clientFirstName: $clientFirstName,
+            clientLastName: $clientLastName,
             serviceId: $serviceId,
             startAt: $startAt,
             endAt: $endAt,
@@ -72,6 +82,8 @@ final class AgendamentoEntity
     public function getCompanyId(): int { return $this->companyId; }
     public function getProfessionalId(): int { return $this->professionalId; }
     public function getClientId(): int { return $this->clientId; }
+    public function getClientFirstName(): ?string { return $this->clientFirstName; }
+    public function getClientLastName(): ?string { return $this->clientLastName; }
     public function getServiceId(): int { return $this->serviceId; }
     public function getStartAt(): \DateTimeImmutable { return $this->startAt; }
     public function getEndAt(): \DateTimeImmutable { return $this->endAt; }

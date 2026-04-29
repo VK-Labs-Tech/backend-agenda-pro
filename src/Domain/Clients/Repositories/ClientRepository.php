@@ -13,22 +13,63 @@ class ClientRepository implements ClientInterface
         protected Connection $connection,
     ) {}
 
-    public function register(string $name, string $phone, ?string $origem, int $companyId): bool
+    /**
+     * Telefone opcional: grava string vazia quando ausente (compatível com coluna NOT NULL sem migração nullable).
+     */
+    private function phoneForStorage(?string $phone): string
+    {
+        if ($phone === null || $phone === '') {
+            return '';
+        }
+
+        return $phone;
+    }
+
+    private function origemForStorage(?string $origem): string
+    {
+        return $origem ?? '';
+    }
+
+    public function register(string $name, ?string $phone, ?string $origem, int $companyId): bool
     {
         return $this->connection->table('clients')->insertGetId([
             'tenant_id' => $companyId,
             'company_id' => $companyId,
             'name' => $name,
-            'phone' => $phone,
-            'origem' => $origem,
+            'phone' => $this->phoneForStorage($phone),
+            'origem' => $this->origemForStorage($origem),
             'active' => 1,
             'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
         ]);
     }
 
-    public function findByPhoneAndCompany(string $phone, int $companyId): ?array
+    public function findRowById(int $id): ?array
     {
-        if ($phone === '') {
+        $row = $this->connection->table('clients')->where('id', $id)->first();
+
+        return $row ? (array) $row : null;
+    }
+
+    public function findByFullNameAndCompany(string $fullName, int $companyId): ?array
+    {
+        $normalized = function_exists('mb_strtolower')
+            ? mb_strtolower(trim($fullName))
+            : strtolower(trim($fullName));
+        if ($normalized === '') {
+            return null;
+        }
+
+        $row = $this->connection->table('clients')
+            ->where('company_id', $companyId)
+            ->whereRaw('LOWER(TRIM(name)) = ?', [$normalized])
+            ->first();
+
+        return $row ? (array) $row : null;
+    }
+
+    public function findByPhoneAndCompany(?string $phone, int $companyId): ?array
+    {
+        if ($phone === null || $phone === '') {
             return null;
         }
 
@@ -43,14 +84,14 @@ class ClientRepository implements ClientInterface
     /**
      * Register a client for a specific company and return the inserted id.
      */
-    public function registerForCompany(string $name, string $phone, ?string $origem, int $companyId): int
+    public function registerForCompany(string $name, ?string $phone, ?string $origem, int $companyId): int
     {
         return (int) $this->connection->table('clients')->insertGetId([
             'tenant_id' => $companyId,
             'company_id' => $companyId,
             'name' => $name,
-            'phone' => $phone,
-            'origem' => $origem,
+            'phone' => $this->phoneForStorage($phone),
+            'origem' => $this->origemForStorage($origem),
             'active' => 1,
             'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
         ]);
@@ -62,8 +103,8 @@ class ClientRepository implements ClientInterface
             ->where('id', $client->getId())
             ->update([
                 'name' => $client->getName(),
-                'phone' => $client->getPhone(),
-                'origem' => $client->getOrigem(),
+                'phone' => $this->phoneForStorage($client->getPhone()),
+                'origem' => $this->origemForStorage($client->getOrigem()),
             ]) > 0;
     }
 

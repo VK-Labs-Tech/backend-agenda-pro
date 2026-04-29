@@ -6,14 +6,14 @@ class ClientEntity
     public function __construct(
         private int $id,
         private string $name,
-        private string $phone,
+        private ?string $phone,
         private ?string $origem
     ) {}
 
     public static function restore(
         int $id,
         string $name,
-        string $phone,
+        ?string $phone,
         ?string $origem
     ): self {
         return new self(
@@ -26,7 +26,7 @@ class ClientEntity
 
     public static function create(
         string $name,
-        string $phone,
+        ?string $phone,
         ?string $origem
     ) {
         return new self(
@@ -45,7 +45,7 @@ class ClientEntity
         return $this->name;
     }
 
-    public function getPhone(): string {
+    public function getPhone(): ?string {
         return $this->phone;
     }
 
