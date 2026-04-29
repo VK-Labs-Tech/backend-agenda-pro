@@ -13,7 +13,7 @@ class ClientRepository implements ClientInterface
         protected Connection $connection,
     ) {}
 
-    public function register(string $name, string $phone, ?string $origem, int $companyId): bool
+    public function register(string $name, ?string $phone, ?string $origem, int $companyId): bool
     {
         return $this->connection->table('clients')->insertGetId([
             'tenant_id' => $companyId,
@@ -26,9 +26,9 @@ class ClientRepository implements ClientInterface
         ]);
     }
 
-    public function findByPhoneAndCompany(string $phone, int $companyId): ?array
+    public function findByPhoneAndCompany(?string $phone, int $companyId): ?array
     {
-        if ($phone === '') {
+        if ($phone === null || $phone === '') {
             return null;
         }
 
@@ -43,7 +43,7 @@ class ClientRepository implements ClientInterface
     /**
      * Register a client for a specific company and return the inserted id.
      */
-    public function registerForCompany(string $name, string $phone, ?string $origem, int $companyId): int
+    public function registerForCompany(string $name, ?string $phone, ?string $origem, int $companyId): int
     {
         return (int) $this->connection->table('clients')->insertGetId([
             'tenant_id' => $companyId,
