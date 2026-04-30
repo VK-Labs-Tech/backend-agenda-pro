@@ -12,6 +12,10 @@ final class AgendamentoService
 
     public function register(AgendamentoRequest $request): array
     {
+        if ($request->serviceId() <= 0) {
+            return [];
+        }
+
         $duration = $this->resolveDuration($request);
         $agendamento = AgendamentoEntity::create(
             companyId: $request->companyId(),
@@ -21,17 +25,27 @@ final class AgendamentoService
             clientLastName: $request->clientLastName(),
             serviceId: $request->serviceId(),
             startAt: new \DateTimeImmutable($request->startAt()),
-            endAt: new \DateTimeImmutable($request->endAt()),
+            endAt: new \DateTimeImmutable($request->endAt() ?? $request->startAt()),
             durationMinutes: $duration,
             notes: $request->notes(),
             active: $request->active() ?? true,
         );
 
-        return $this->repository->save($agendamento);
+        $created = $this->repository->save($agendamento);
+        $id = (int) ($created['id'] ?? 0);
+        if ($id > 0) {
+            $this->repository->replaceAppointmentServices($id, $request->serviceIds());
+        }
+
+        return $this->repository->findById($id) ?? $created;
     }
 
     public function update(int $id, AgendamentoRequest $request): bool
     {
+        if ($request->serviceId() <= 0) {
+            return false;
+        }
+
         $duration = $this->resolveDuration($request);
         $agendamento = AgendamentoEntity::restore(
             id: $id,
@@ -42,13 +56,18 @@ final class AgendamentoService
             clientLastName: $request->clientLastName(),
             serviceId: $request->serviceId(),
             startAt: new \DateTimeImmutable($request->startAt()),
-            endAt: new \DateTimeImmutable($request->endAt()),
+            endAt: new \DateTimeImmutable($request->endAt() ?? $request->startAt()),
             durationMinutes: $duration,
             notes: $request->notes(),
             active: $request->active() ?? true,
         );
 
-        return $this->repository->update($agendamento, $id);
+        $ok = $this->repository->update($agendamento, $id);
+        if ($ok) {
+            $this->repository->replaceAppointmentServices($id, $request->serviceIds());
+        }
+
+        return $ok;
     }
 
     public function delete(int $id): bool

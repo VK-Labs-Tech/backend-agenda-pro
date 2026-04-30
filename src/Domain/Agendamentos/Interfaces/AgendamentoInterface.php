@@ -12,4 +12,9 @@ interface AgendamentoInterface
     public function findAll(): array;
     public function findAllByCompanyId(int $companyId): array;
     public function findById(int $id): ?array;
+
+    /**
+     * @param int[] $serviceIds ordem preservada, ids > 0
+     */
+    public function replaceAppointmentServices(int $appointmentId, array $serviceIds): void;
 }
