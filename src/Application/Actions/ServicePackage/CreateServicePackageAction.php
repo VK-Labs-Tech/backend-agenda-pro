@@ -91,7 +91,11 @@ class CreateServicePackageAction
             );
 
             $createdAppointment = $this->agendamentoRepository->save($appointment);
-            $session->agendamento_id = isset($createdAppointment['id']) ? (int) $createdAppointment['id'] : null;
+            $apptId = isset($createdAppointment['id']) ? (int) $createdAppointment['id'] : 0;
+            if ($apptId > 0) {
+                $this->agendamentoRepository->replaceAppointmentServices($apptId, [(int) $package->service_id]);
+            }
+            $session->agendamento_id = $apptId > 0 ? $apptId : null;
         }
 
         $packageId = $this->service->createPackage($package, $sessions);
